@@ -1,11 +1,14 @@
 import argparse
 from pingtrace.ping import ping_host
 from pingtrace.traceroute import traceroute_host
+from pingtrace.report import write_ping_csv
 
 
-def run_ping(hosts, count: int):
+def run_ping(hosts, count: int, csv_file: str | None = None):
+    all_results = []
     for host in hosts:
         stats = ping_host(host, count=count)
+        all_results.append(stats)
         print(f"\nHost: {stats['host']}")
         print(f"Sent: {stats['sent']}  Received: {stats['received']}")
         print(f"Packet loss: {stats['packet_loss'] * 100:.1f}%")
@@ -13,6 +16,10 @@ def run_ping(hosts, count: int):
             f"RTT (ms) -> min: {stats['min_rtt']:.2f}, "
             f"avg: {stats['avg_rtt']:.2f}, max: {stats['max_rtt']:.2f}"
         )
+
+    if csv_file:
+        write_ping_csv(csv_file, all_results)
+        print(f"\nSaved ping results to {csv_file}")
 
 
 def run_traceroute(host: str, max_hops: int):
@@ -35,11 +42,12 @@ def main():
     parser.add_argument("hosts", nargs="+", help="Hostnames or IPs")
     parser.add_argument("--count", type=int, default=4, help="Echo requests per host (ping mode)")
     parser.add_argument("--max-hops", type=int, default=30, help="Max hops (traceroute mode)")
+    parser.add_argument("--csv", help="CSV file to save ping results")
 
     args = parser.parse_args()
 
     if args.ping:
-        run_ping(args.hosts, count=args.count)
+        run_ping(args.hosts, count=args.count, csv_file=args.csv)
     elif args.trace:
         if len(args.hosts) != 1:
             raise SystemExit("Traceroute mode expects exactly one host.")
@@ -48,4 +56,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
