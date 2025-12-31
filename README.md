@@ -38,3 +38,40 @@ write_ping_csv("ping_report.csv", results)
 ```
 
 Each result dictionary must contain the keys `host`, `sent`, `received`, `packet_loss`, `min_rtt`, `avg_rtt`, and `max_rtt`, which are then transformed into the structured CSV format described above.
+
+
+## Comparison summary for multiple destinations
+
+When pinging multiple hosts, the tool automatically computes and displays a comparison summary showing:
+
+- **Lowest average RTT** (best latency): The host with the quickest response times
+- **Highest average RTT** (worst latency): The host with the slowest response times
+- **Lowest packet loss** (most reliable): The host with the most stable connection
+- **Highest packet loss** (least reliable): The host with the least stable connection
+
+### Example output
+
+When running `python nettool.py --ping 8.8.8.8 1.1.1.1 9.9.9.9`, the tool will print individual statistics for each host, followed by a comparison summary:
+
+```
+============================================================
+COMPARISON SUMMARY
+============================================================
+
+Lowest avg RTT (best latency):
+  8.8.8.8: 12.34 ms
+
+Highest avg RTT (worst latency):
+  9.9.9.9: 45.67 ms
+
+Lowest packet loss (most reliable):
+  1.1.1.1: 0.0%
+
+Highest packet loss (least reliable):
+  9.9.9.9: 5.0%
+
+============================================================
+```
+
+This summary helps quickly identify which destinations have the best performance characteristics for your network.
+
