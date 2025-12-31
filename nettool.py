@@ -2,9 +2,10 @@ import argparse
 from pingtrace.ping import ping_host
 from pingtrace.traceroute import traceroute_host
 from pingtrace.report import write_ping_csv
+from pingtrace.html_report import generate_html_report
 
 
-def run_ping(hosts, count: int, csv_file: str | None = None):
+def run_ping(hosts, count: int, csv_file: str | None = None, html_file: str | None = None):
     all_results = []
     for host in hosts:
         stats = ping_host(host, count=count)
@@ -20,6 +21,12 @@ def run_ping(hosts, count: int, csv_file: str | None = None):
     if csv_file:
         write_ping_csv(csv_file, all_results)
         print(f"\nSaved ping results to {csv_file}")
+
+    if html_file and csv_file:
+        generate_html_report(csv_file, html_file)
+        print(f"Saved HTML report to {html_file}")
+    elif html_file and not csv_file:
+        raise SystemExit("HTML report requires --csv so it knows which CSV to read.")
 
 
 def run_traceroute(host: str, max_hops: int):
@@ -43,11 +50,12 @@ def main():
     parser.add_argument("--count", type=int, default=4, help="Echo requests per host (ping mode)")
     parser.add_argument("--max-hops", type=int, default=30, help="Max hops (traceroute mode)")
     parser.add_argument("--csv", help="CSV file to save ping results")
+    parser.add_argument("--html", help="HTML file to save ping report (requires --csv)")
 
     args = parser.parse_args()
 
     if args.ping:
-        run_ping(args.hosts, count=args.count, csv_file=args.csv)
+        run_ping(args.hosts, count=args.count, csv_file=args.csv, html_file=args.html)
     elif args.trace:
         if len(args.hosts) != 1:
             raise SystemExit("Traceroute mode expects exactly one host.")
