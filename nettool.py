@@ -1,5 +1,5 @@
 import argparse
-from pingtrace.ping import ping_host
+from pingtrace.ping import ping_host, compare_ping_results
 from pingtrace.traceroute import traceroute_host
 from pingtrace.report import write_ping_csv
 from pingtrace.html_report import generate_html_report
@@ -17,6 +17,8 @@ def run_ping(hosts, count: int, csv_file: str | None = None, html_file: str | No
             f"RTT (ms) -> min: {stats['min_rtt']:.2f}, "
             f"avg: {stats['avg_rtt']:.2f}, max: {stats['max_rtt']:.2f}"
         )
+
+        compare_ping_results(all_results)
 
     if csv_file:
         write_ping_csv(csv_file, all_results)
